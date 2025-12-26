@@ -1,7 +1,7 @@
 import { Observable, ObservableBoolean, observable } from '@legendapp/state';
 import { Context, ReactNode, createContext, createElement, useState } from 'react';
 
-let pauseContext: Context<ObservableBoolean> | undefined = undefined;
+let pauseContext: Context<ObservableBoolean<any>> | undefined = undefined;
 export const getPauseContext = () => {
     return (pauseContext ||= createContext<Observable<boolean>>(null as any));
 };

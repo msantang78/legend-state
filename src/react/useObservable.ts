@@ -2,6 +2,8 @@ import type { Observable } from '@legendapp/state';
 import { computeSelector, getNode, internal, isFunction, observable, RecursiveValueOrFunction } from '@legendapp/state';
 import { DependencyList, useRef } from 'react';
 import { useUnmount } from './useUnmount';
+import { isSyncedObservable } from 'src/onChange';
+import { useObserve } from './useObserve';
 
 const { deactivateNode } = internal;
 
@@ -29,6 +31,16 @@ export function useObservable<T>(
 
     // Create a deps observable to be watched by the created observable
     const depsObs$ = deps ? useObservable(deps) : undefined;
+
+    // For synced  observables reset the observable when deps change
+    useObserve(() => {
+        depsObs$?.get();
+        const node = getNode(ref.current.obs$ as Observable<any>);
+        if (node && isSyncedObservable(node)) {
+            node.state?.reset();
+        }
+    });
+
     if (!ref.current?.obs$) {
         // Create the observable from the default value. If the selector function is a lookup table
         // then it needs to be a function taking a string to pass it through.
